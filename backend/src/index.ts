@@ -18,6 +18,7 @@ app.get('/health', (c) => {
 
 // Protected endpoint
 app.get('/api/me', supabaseAuth, (c) => {
+  // @ts-ignore
   const user = c.get('user');
   return c.json({
     message: 'Secure data successfully retrieved from Backend',

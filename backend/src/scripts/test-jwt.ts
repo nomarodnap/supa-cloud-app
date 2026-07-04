@@ -5,6 +5,6 @@ const secret = '3v1RBcs2TfHyKwJMjxF3drgLqcLma4yQahvSIhV9WQyPq+SNKN9V4tumifeDa2cy
 try {
   jwt.verify(anonKey, secret);
   console.log('Valid');
-} catch (e) {
+} catch (e: any) {
   console.log('Invalid:', e.message);
 }
