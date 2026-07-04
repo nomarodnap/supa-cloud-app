@@ -14,8 +14,10 @@
   "description": "",
   "dependencies": {
     "@hono/node-server": "^2.0.8",
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.27",
+    "jose": "^6.2.3",
     "jsonwebtoken": "^9.0.3",
     "postgres": "^3.4.9"
   },

@@ -1,5 +1,10 @@
 import { Context, Next } from 'hono';
-import jwt from 'jsonwebtoken';
+import { createRemoteJWKSet, jwtVerify } from 'jose';
+
+// Supabase now uses Asymmetric keys (ES256/RS256) for your project.
+// We fetch the public keys dynamically from your project's JWKS endpoint.
+const JWKS_URL = new URL('https://fsveuykpffrbyzmeltjw.supabase.co/auth/v1/.well-known/jwks.json');
+const JWKS = createRemoteJWKSet(JWKS_URL);
 
 export const supabaseAuth = async (c: Context, next: Next) => {
   const authHeader = c.req.header('Authorization');
@@ -9,18 +14,18 @@ export const supabaseAuth = async (c: Context, next: Next) => {
   }
 
   const token = authHeader.split(' ')[1];
-  const jwtSecret = process.env.SUPABASE_JWT_SECRET;
-
-  if (!jwtSecret) {
-    console.error('SUPABASE_JWT_SECRET is not set');
-    return c.json({ error: 'Internal Server Error' }, 500);
-  }
 
   try {
-    const decoded = jwt.verify(token, jwtSecret);
-    c.set('user', decoded);
+    // This will securely verify the token using the correct asymmetric algorithm
+    // and automatically cache the public keys from the JWKS URL.
+    const { payload } = await jwtVerify(token, JWKS, {
+      algorithms: ['ES256', 'RS256', 'HS256'],
+    });
+    
+    c.set('user', payload);
     await next();
-  } catch (error) {
-    return c.json({ error: 'Invalid Token' }, 401);
+  } catch (error: any) {
+    console.error('JWT Verification Error:', error.message);
+    return c.json({ error: error.message }, 401);
   }
 };
