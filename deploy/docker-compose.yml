@@ -1,8 +1,6 @@
 services:
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: asia-southeast3-docker.pkg.dev/supa-cloud-app/my-repo/my-docker-app-frontend:latest
     restart: always
     ports:
       - "3000:3000"
@@ -16,9 +14,7 @@ services:
       - "host.docker.internal:host-gateway"
 
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    image: asia-southeast3-docker.pkg.dev/supa-cloud-app/my-repo/my-docker-app-backend:latest
     restart: always
     ports:
       - "8080:8080"
