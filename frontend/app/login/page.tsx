@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CloudLightning, Loader2, ArrowRight } from 'lucide-react'
-import { login, signup } from './actions'
+import { authClient } from '@/lib/auth-client'
 import { toast } from 'sonner'
 
 export default function LoginPage() {
@@ -15,21 +15,36 @@ export default function LoginPage() {
 
   async function handleLogin(formData: FormData) {
     setIsLoading(true)
-    const result = await login(formData)
-    if (result?.error) {
-      toast.error(result.error)
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    
+    const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: '/dashboard'
+    });
+    
+    if (error) {
+      toast.error(error.message)
       setIsLoading(false)
     }
-    // On success, redirect happens in server action
   }
 
   async function handleSignup(formData: FormData) {
     setIsLoading(true)
-    const result = await signup(formData)
-    if (result?.error) {
-      toast.error(result.error)
-    } else if (result?.success) {
-      toast.success(result.success)
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    
+    const { data, error } = await authClient.signUp.email({
+        email,
+        password,
+        name: email.split('@')[0] // Provide a default name
+    });
+    
+    if (error) {
+      toast.error(error.message)
+    } else {
+      toast.success('Account created successfully! You can now log in.')
     }
     setIsLoading(false)
   }

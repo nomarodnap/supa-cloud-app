@@ -1,0 +1,19 @@
+# Replace with your actual domain or VM public IP
+# Example: example.com
+{
+	# Uncomment if testing locally without a real domain
+	# local_certs
+}
+
+# Your domain name here (e.g. supa-cloud.example.gov.th)
+:80 {
+	# Route API traffic to Backend
+	handle_path /api/* {
+		reverse_proxy backend:8080
+	}
+
+	# Route all other traffic to Frontend
+	handle {
+		reverse_proxy frontend:3000
+	}
+}

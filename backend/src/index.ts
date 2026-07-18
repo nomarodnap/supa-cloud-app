@@ -3,7 +3,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { cors } from 'hono/cors';
-import { supabaseAuth } from './middleware/auth';
+import { betterAuthMiddleware } from './middleware/auth';
 
 const app = new Hono();
 
@@ -17,7 +17,7 @@ app.get('/health', (c) => {
 });
 
 // Protected endpoint
-app.get('/api/me', supabaseAuth, (c) => {
+app.get('/api/me', betterAuthMiddleware, (c) => {
   // @ts-ignore
   const user = c.get('user');
   return c.json({

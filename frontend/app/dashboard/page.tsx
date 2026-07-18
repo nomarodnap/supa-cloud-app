@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CloudLightning, LockKeyhole, User as UserIcon } from 'lucide-react'
 
@@ -7,12 +8,9 @@ import { CloudLightning, LockKeyhole, User as UserIcon } from 'lucide-react'
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  const session = await auth.api.getSession({ headers: await headers() })
 
-  // 1. Check if user is logged in
-  const { data: { session }, error } = await supabase.auth.getSession()
-
-  if (error || !session) {
+  if (!session) {
     redirect('/login')
   }
 
@@ -22,10 +20,13 @@ export default async function DashboardPage() {
 
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+    const reqHeaders = await headers()
+    const cookieHeader = reqHeaders.get('cookie') || ''
+
     const response = await fetch(`${apiUrl}/api/me`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${session.access_token}`,
+        'Cookie': cookieHeader,
         'Content-Type': 'application/json'
       },
       // Ensure Next.js doesn't aggressively cache this fetch
@@ -74,7 +75,7 @@ export default async function DashboardPage() {
                 <LockKeyhole className="w-5 h-5 text-emerald-500" />
                 Frontend Authentication
               </CardTitle>
-              <CardDescription>Supabase SSR Session Information</CardDescription>
+              <CardDescription>Better Auth Session Information</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="bg-zinc-100 dark:bg-zinc-900 p-4 rounded-lg overflow-x-auto">
@@ -84,7 +85,6 @@ export default async function DashboardPage() {
                       status: 'Authenticated',
                       userId: session.user.id,
                       email: session.user.email,
-                      lastSignIn: session.user.last_sign_in_at
                     },
                     null,
                     2
